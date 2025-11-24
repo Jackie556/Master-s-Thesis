@@ -137,9 +137,3 @@ ggplot(dat, aes(x = as.factor(Contraceptive_using), y = predicted_prob,
     title = "Distribution of Predicted Probabilities by Actual Use"
   ) +
   theme_minimal()
-
-
-
-
-
-
