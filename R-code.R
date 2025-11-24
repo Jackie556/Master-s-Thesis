@@ -1,5 +1,4 @@
 # Install and load the glmmTMB package if needed
-
 library(glmmTMB)
 library(haven) 
 library(ggplot2)
@@ -7,7 +6,6 @@ library(pROC)
 library(DHARMa)
 library(car)
 library(lme4)
-
 
 
 dat <- read_sav("C:/Users/jacki/OneDrive/Desktop/Master's Thesis paper/DATA/F-6.sav")
