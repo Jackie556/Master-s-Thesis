@@ -143,6 +143,3 @@ ggplot(dat, aes(x = as.factor(Contraceptive_using), y = predicted_prob,
 
 
 
-
-
-
