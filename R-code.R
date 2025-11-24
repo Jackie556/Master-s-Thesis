@@ -4,8 +4,9 @@ library(glmmTMB)
 library(haven) 
 library(ggplot2)
 library(pROC)
-
-
+library(DHARMa)
+library(car)
+library(lme4)
 
 
 
@@ -15,6 +16,15 @@ dat <- read_sav("C:/Users/jacki/OneDrive/Desktop/Master's Thesis paper/DATA/F-6.
 
 dat$wgt <- dat$V005 / 1000000
 names(dat)
+
+
+
+
+
+
+
+
+
 # Fit a zero-inflated Poisson multilevel model
 model_zip <- glmmTMB(
   Contraceptive_using~ Wealth_combined + Woman_age+ Desire_for_children+
@@ -39,8 +49,41 @@ dat$predicted_prob <- predict(model_zip, type = "response")
 
 print(dat$predicted_prob)
 
-#ROC curve
 
+#MOdel checking
+
+# Simulate scaled (quantile) residuals from your model
+sim_res <- simulateResiduals(model_zip)
+sim_res
+
+# Basic diagnostic plots
+plot(sim_res)
+
+testDispersion(sim_res)
+
+testZeroInflation(sim_res)
+
+testOutliers(sim_res)
+
+
+#Random Effects Normality: Caterpillar Plot
+
+re <- ranef(model_zip)$cond$Place_of_Residence
+dotchart(re[, "(Intercept)"],
+         main = "Random Intercepts by Cluster (Caterpillar Plot)")
+
+#Modell fitted graph
+
+ggplot(dat, aes(x = predicted_prob, y = as.numeric(Contraceptive_using))) +
+  geom_jitter(height = 0.05, width = 0, alpha = 0.2) +
+  geom_smooth(method="loess", se=TRUE, color="blue") +
+  labs(x="Predicted Probability", y="Observed Outcome",
+       title="Predicted vs Observed Contraceptive Use") +
+  theme_minimal()
+
+
+
+#ROC curve
 
 
 roc_obj <- roc(dat$Contraceptive_using, dat$predicted_prob)
@@ -53,7 +96,8 @@ cat("AUC:", round(auc(roc_overall), 3))
 
 # Split ROC by cluster
 clusters <- unique(dat$Place_of_Residence)
-plot(NULL, xlim=c(1,0), ylim=c(0,1), xlab="Specificity", ylab="Sensitivity", main="ROC by Cluster")
+plot(NULL, xlim=c(1,0), ylim=c(0,1), xlab="Specificity",
+     ylab="Sensitivity", main="ROC by Cluster")
 colors <- c("#D55E00", "#0072B2", "#009E73", "#CC79A7")  # Add more colors for more clusters
 
 for (i in seq_along(clusters)) {
@@ -93,6 +137,12 @@ ggplot(dat, aes(x = as.factor(Contraceptive_using), y = predicted_prob,
     title = "Distribution of Predicted Probabilities by Actual Use"
   ) +
   theme_minimal()
+
+
+
+
+
+
 
 
 
