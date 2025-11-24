@@ -15,11 +15,7 @@ dat$wgt <- dat$V005 / 1000000
 names(dat)
 
 
-
-
-
-
-
+dat$Contraceptive_using <- as.factor(dat$Contraceptive_using)
 
 # Fit a zero-inflated Poisson multilevel model
 model_zip <- glmmTMB(
@@ -27,16 +23,51 @@ model_zip <- glmmTMB(
     Opinion_on_use_of_contraception+V201
   +Age_of_Woman_at_first_sex+Religion+Own_a_house+
     Source_Of_Method+Opinion_on_use_of_contraception+
-    Total_children_ever_born+(1 |Place_of_Residence), # Count model, with random intercept for group
+    Total_children_ever_born+(1 |Place_of_Residence),# Count model, with random intercept for group
   ziformula = ~ Household_Ratio+Sex_of_household_head+
     Husband_age+Husband_desire_for_children+
-    (1 | Place_of_Residence),   # Zero-inflation model (predictors & group random effect)
-  family = binomial,
+    (1 | Place_of_Residence),# Zero-inflation model (predictors & group random effect)
+  family = binomial(link = "logit"),
   data = dat
 )
 
 # Check summary
 summary(model_zip)
+
+# Count model, with random intercept for group
+
+model_zip1 <- glmmTMB(
+  Contraceptive_using~ Wealth_combined + Woman_age+ Desire_for_children+
+    Opinion_on_use_of_contraception+V201
+  +Age_of_Woman_at_first_sex+Religion+Own_a_house+
+    Source_Of_Method+Opinion_on_use_of_contraception+
+    Total_children_ever_born+Household_Ratio+Sex_of_household_head+
+    Husband_age+Husband_desire_for_children+(1 |Place_of_Residence),
+  family = binomial(link = "logit"),
+  data = dat
+)
+
+
+# Check summary
+summary(model_zip1)
+
+
+
+# --- MODEL FITTING: MULTILEVEL LOGISTIC REGRESSION ---
+# Using glmer() from lme4 for Generalized Linear Mixed-Effects Models
+model_logistic <- glmer(
+  Contraceptive_using ~ Wealth_combined + Woman_age + Desire_for_children +
+    Opinion_on_use_of_contraception + V201 + Age_of_Woman_at_first_sex +
+    Religion + Own_a_house + Source_Of_Method + Total_children_ever_born +
+    (1 | Place_of_Residence), # Random intercept for Place_of_Residence (cluster)
+  family = binomial(link = "logit"), # Correct family and link for binary outcome
+  data = dat
+)
+
+# Check summary
+summary(model_logistic)
+
+
 
 
 
