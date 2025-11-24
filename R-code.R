@@ -11,10 +11,8 @@ library(lme4)
 dat <- read_sav("C:/Users/jacki/OneDrive/Desktop/Master's Thesis paper/DATA/F-6.sav")
 
 
-
 dat$wgt <- dat$V005 / 1000000
 names(dat)
-
 
 
 
