@@ -31,6 +31,7 @@ model_zip <- glmmTMB(
   data = dat
 )
 
+
 # Check summary
 summary(model_zip)
 
